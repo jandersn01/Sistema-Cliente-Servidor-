@@ -15,7 +15,7 @@ Disciplinas: Sistemas Operacionais, professor Gustavo Wagner,
  O cliente aceita como argumento  o IP do servidor, e caso necessário também é possível 'setar' também a porta (python3 cliente.py 'end_ip' porta: int), caso nenhum argumento seja passado, o IP addr assume 'localhost'.
  É recomendado a versão 10 do python.
 
- protocolo de aplicação: 'SUS-PEITO'
+ protocolo de aplicação: 'JAND'
 
 ENVIO CLIENTE ------------------------------------------------> SERVIDOR
 
