@@ -33,6 +33,7 @@ class Clinica_agendamento:
 
         # Verifica o número de agendamentos para calcular o novo horário
         num_agendamentos = len(self.__consultas_agenda[dia])
+
         novo_horario = horario_ini_datetime + timedelta(minutes=30 * num_agendamentos)
 
         # Retorna o novo horário formatado como string
@@ -61,8 +62,19 @@ class Clinica_agendamento:
             for dia, agendado in self.__consultas_agenda.items():
                 if cpf_busca in agendado:
                     tupla_removida = agendado.pop(cpf_busca)
+                    self._redefinirHorarios(dia)
                     return f'OK-301 {tupla_removida}'
             return 'ERRO-113 '
+
+    def _redefinirHorarios(self,dia):
+        horario_inicial = datetime.strptime(self.__horario_ini, "%H:%M")
+        agendados = sorted(self.__consultas_agenda[dia].items(), key= lambda X: X[1][-1]);
+        self.__consultas_agenda[dia] = {}
+        for i,(cpf,agendado) in enumerate(agendados):
+            novo_horario = horario_inicial + timedelta(minutes=30 * i)
+            agendamento_atualizado = agendado[:-1] +  (novo_horario.strftime("%H:%M"),)
+            self.__consultas_agenda[dia][cpf] = agendamento_atualizado
+
 
 
 #INSERIR NA TABELA UM AGENDAMENTO
