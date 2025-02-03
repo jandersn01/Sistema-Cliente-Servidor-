@@ -1,5 +1,5 @@
 
-# Clínica Médica 
+# Clínica De Saúde
 
 Este projeto tem por finalidade performar uma arquitetura Cliente e Servidor. Aqui é aplicado conceitos do paradigma OO, API sockets do Python, uso de threads no servidor para que seja possível tratar multiplas conexões de clientes, semáforos Mutex para resolver condições de disputa por recursos.
 
