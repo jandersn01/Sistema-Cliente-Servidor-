@@ -26,7 +26,6 @@ def tratar_resposta(status):
     retorno = entrada[0]
     situacao = protocolo_respostas.get(retorno)
     corpo = ''
-
     if len(entrada) > 1:
         corpo = ' '.join(entrada[1:])
         return f'{situacao}: {retorno} {corpo}'
@@ -43,22 +42,30 @@ Agora, forneça os dados necessários:
 ''')
 
     met = SET_METODO[2]
+    cpf = input('Digite aqui apenas os 11 números do seu CPF: ')
 
-    cpf = input('Digite aqui seu CPF com apenas números: ')
+    while tratarCpf(cpf) is not True:
+        print("DIGITE UM CPF VALIDO")
+        cpf = input('Digite aqui apenas os 11 números do seu CPF: ')
     
     return met, cpf 
 
 
 #função caso o usuário desejar consultar um agendamento já feito
 def consultar():
-    print('''
-OK! Você deseja consultar dados de um agendamento já feito.
-Agora, forneça os dados necessários:
-''')
-    met = SET_METODO[1]
-    cpf = input('Digite aqui seu CPF: ')
+        print('''
+    OK! Você deseja consultar dados de um agendamento já feito.
+    Agora, forneça os dados necessários:
+    ''')
+        met = SET_METODO[1]
 
-    return met, cpf
+        cpf = input('Digite aqui apenas os 11 números do seu CPF: ')
+        while tratarCpf(cpf) is not True:
+            print("DIGITE UM CPF VALIDO")
+            cpf = input('Digite aqui apenas os 11 números do seu CPF: ')
+                
+        return met, cpf 
+
 
 
 #Função caso o usuario desejar AGENDAR consulta
@@ -66,34 +73,45 @@ def agendar():
 
     global ESPECIALIDADE
     print(f'''
-              
+            
 OK! A operação escolhida foi agendar.
 Agora, digite o número correspondente ao tipo de especialista que voê deseja consultar:
-              
+            
     1 - {ESPECIALIDADE[0]} 
     2 - {ESPECIALIDADE[1]} 
     3 - {ESPECIALIDADE[2]} 
-                      
+                    
 ''')
-    esp = int(input('DIGITE AQUI O NÚMERO RELACIONADO A ESPECIALIDADE MÉDICA DESEJADA: '))
 
-    if ESPECIALIDADE[esp-1] not in ESPECIALIDADE:
-        raise Exception
-    else:
-        print(f'''
+    esp = int(input('DIGITE AQUI O NÚMERO RELACIONADO A ESPECIALIDADE MÉDICA DESEJADA: '))
+    while esp < 1 or esp > 3:
+            print (f'ESCOLHA UMA OPÇÃO VÁLIDA')
+            esp = int(input('DIGITE AQUI O NÚMERO RELACIONADO A ESPECIALIDADE MÉDICA DESEJADA: '))
+
+    print(f'''
 OK! Você deseja agendar consulta com um {ESPECIALIDADE[esp - 1][-1]}
 Agora, forneça os dados necessários:
 ''')    
-        met = SET_METODO[0]
-        cpf = input('Digite aqui seu CPF: ')
-        nome = input("Digite aqui o seu nome Completo: ").upper()
-        espesc = ESPECIALIDADE[esp - 1][-1]
-        day = ESPECIALIDADE[esp - 1][1]
-        date = ESPECIALIDADE[esp - 1][0]
+    met = SET_METODO[0]
+    
+    cpf = input('Digite aqui apenas os 11 números do seu CPF: ')
+    while tratarCpf(cpf) is not True:
+        print("DIGITE UM CPF VALIDO")
+        cpf = input('Digite aqui apenas os 11 números do seu CPF: ')
 
-    return met, cpf, nome, espesc, date, day        
+    nome = input("Digite aqui o seu nome Completo: ").upper()
+    espesc = ESPECIALIDADE[esp - 1][-1]
+    day = ESPECIALIDADE[esp - 1][1]
+    date = ESPECIALIDADE[esp - 1][0]
+    return met, cpf, nome, espesc, date, day      
 
-        
+def tratarCpf(cpf):
+    if len(cpf) != 11 :
+        return False
+    else:
+       if not cpf.isdigit():
+           return False
+    return True
 
 #tratamento de opções do usuario
 def opcoes():
@@ -113,16 +131,27 @@ Por favor, digite o número da operação que você deseja realizar:
     
     op = int(input('DIGITE AQUI O NÚMERO DA OPERACAO DESEJADA: '))
 #tratar opções do usuário
-    if op == 1:
-        mensagem_tupla = agendar()
-        
-    elif op == 2:
-        mensagem_tupla = consultar()
+    while True:
+        if op == 1:
+            mensagem_tupla = agendar() 
+            return True 
+            break
+        elif op == 2:
+            mensagem_tupla = consultar()
+            return True 
+            break
+        elif op == 3:
+            mensagem_tupla = desmarcar()
+            return True 
+            break
+        elif op == 4:
+            return False;
+            break
+        else:
+            print("\nDIGITE UMA OPÇÃO VÁLIDA")
+            return opcoes()
+            break
 
-    elif op == 3:
-        mensagem_tupla = desmarcar()
-    else:
-        return False
 
 
         
@@ -143,20 +172,26 @@ if __name__ == '__main__':
         PORTA = int(sys.argv[2])
     sock_cliente.connect((HOST, PORTA))
     
-    try:
-        while True:
+        
+    while True:
             medicos_disponíveis = sock_cliente.recv(CAPACIDADE)
             ESPECIALIDADE = pickle.loads(medicos_disponíveis)
             continuar = opcoes()
             if continuar is not False:
-                dados_cliente = pickle.dumps(mensagem_tupla)
-                sock_cliente.sendall(dados_cliente)
-                resposta_serv = sock_cliente.recv(CAPACIDADE)
-                status = pickle.loads(resposta_serv)
-                saida = tratar_resposta(status)
-                print(f'\n{saida}')
+                if mensagem_tupla != None:
+                    dados_cliente = pickle.dumps(mensagem_tupla)
+                    sock_cliente.sendall(dados_cliente)
+                    resposta_serv = sock_cliente.recv(CAPACIDADE)
+                    status = pickle.loads(resposta_serv)
+                    saida = tratar_resposta(status)
+                    print(f'\n{saida}\n')
+                else:
+                    print(" ")
+                    
             else:
-                break
-    finally:
-        print('CONEXÃO ENCERRADA.')
-        sock_cliente.close()
+                break;       
+    print('CONEXÃO ENCERRADA.')
+    sock_cliente.close()
+
+
+    
